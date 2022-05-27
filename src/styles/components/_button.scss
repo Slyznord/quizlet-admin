@@ -13,12 +13,34 @@
   cursor: pointer;
   transition: .4s ease-in-out;
 
+  &_normal {
+    width: 160px;
+  }
+
   &_primary {
     background: $primary-color;
     color: $text-white;
 
     &:hover {
       background: $primary-color-hover;
+    }
+  }
+
+  &_success {
+    background: $success-color;
+    color: $text-white;
+
+    &:hover {
+      background: $success-color-hover;
+    }
+  }
+
+  &_error {
+    background: $error-color;
+    color: $text-white;
+
+    &:hover {
+      background: $error-color-hover;
     }
   }
 }

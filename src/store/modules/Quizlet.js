@@ -1,4 +1,5 @@
 import { wsBaseURL } from '@/api/api.config'
+import Api from '@/api/api'
 
 export default {
   namespaced: true,
@@ -67,6 +68,11 @@ export default {
           }, 1000)
         }
       }
+    },
+    async uploadFile ({ commit }, file) {
+      return await Api.post('quizlet/upload', {
+        data: file
+      }).then(res => res.file)
     }
   }
 }

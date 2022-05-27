@@ -1,0 +1,21 @@
+@import '../variables';
+
+.actions-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+
+  &_justify-end {
+    justify-content: flex-end;
+  }
+
+  &_justify-between {
+    justify-content: space-between;
+  }
+
+  &_mb-2 {
+    margin-bottom: 2rem;
+  }
+}
