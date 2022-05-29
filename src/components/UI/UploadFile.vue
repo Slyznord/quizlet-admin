@@ -13,7 +13,7 @@
       >
     </label>
 
-    <p class="upload-file__text upload-file__text_black ml-2">{{ filename }}</p>
+    <p class="upload-file__text upload-file__text_black">{{ filename }}</p>
   </div>
 </template>
 

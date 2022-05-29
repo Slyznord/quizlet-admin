@@ -21,7 +21,7 @@
     </Input>
 
     <Button
-      classes="button button_primary"
+      classes="button button_primary mt-4"
       value="Войти"
       @on-click="onLogin(inputs[0].value, inputs[1].value)"
     />

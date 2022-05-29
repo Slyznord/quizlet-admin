@@ -5,10 +5,50 @@ export default {
   namespaced: true,
   state: {
     quizzes: null,
+    createdQuiz: null,
     attemptToReconnect: 0
   },
   getters: {},
   mutations: {
+    // Actions for quiz
+    initCreatedQuiz (state) {
+      state.createdQuiz = {
+        introductionText: '',
+        duration: '',
+        logoURL: '',
+        section: '',
+        bgColor: '',
+        questions: []
+      }
+    },
+    updateCreatedQuiz (state, { value, key }) {
+      state.createdQuiz[key] = value
+    },
+    addQuestion (state) {
+      state.createdQuiz.questions.push({
+        question: '',
+        answers: []
+      })
+    },
+    deleteQuestion (state, index) {
+      state.createdQuiz.questions.splice(index, 1)
+    },
+    updateQuestion (state, { index, value }) {
+      state.createdQuiz.questions[index].question = value
+    },
+    addAnswer (state, questionIndex) {
+      state.createdQuiz.questions[questionIndex].answers.push({
+        value: '',
+        isRightAnswer: false
+      })
+    },
+    deleteAnswer (state, { questionIndex, answerIndex }) {
+      state.createdQuiz.questions[questionIndex].answers.splice(answerIndex, 1)
+    },
+    updateAnswer (state, { questionIndex, answerIndex, value }) {
+      state.createdQuiz.questions[questionIndex].answers[answerIndex].value = value
+    },
+    // Get quizzes
     setQuizzes (state, payload) {
       state.quizzes = payload
     },

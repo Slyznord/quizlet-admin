@@ -15,7 +15,18 @@
     justify-content: space-between;
   }
 
+  &_items-center {
+    align-items: center;
+  }
+
   &_mb-2 {
     margin-bottom: 2rem;
+  }
+
+  &_sticky-top {
+    position: sticky;
+    left: 0;
+    top: 0;
+    background: #fff;
   }
 }

@@ -60,7 +60,7 @@
 import Button from '@/components/UI/Button'
 import Card from '@/components/UI/Card'
 import CircleIcon from '@/components/UI/CircleIcon'
-import CreateQuizlet from '@/components/Modals/CreateQuizlet'
+import CreateQuizlet from '@/components/Modals/CreateQuizlet/CreateQuizlet'
 import Grid from '@/components/UI/Grid'
 import Switch from '@/components/UI/Switch'
 import {
