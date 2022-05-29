@@ -1,4 +1,12 @@
 <template>
+  <div class="actions-panel actions-panel_justify-end actions-panel_mb-2">
+    <Button
+      value="Создать квиз"
+      classes="button button_normal button_success"
+      @click="openCreateQuizletModal"
+    />
+  </div>
+
   <Grid classes="grid_col-4 grid_gap-1">
     <Card
       v-for="item in quizzes"
@@ -49,8 +57,10 @@
 </template>
 
 <script>
+import Button from '@/components/UI/Button'
 import Card from '@/components/UI/Card'
 import CircleIcon from '@/components/UI/CircleIcon'
+import CreateQuizlet from '@/components/Modals/CreateQuizlet/CreateQuizlet'
 import Grid from '@/components/UI/Grid'
 import Switch from '@/components/UI/Switch'
 import {
@@ -59,12 +69,13 @@ import {
   TrashIcon
 } from '@heroicons/vue/outline'
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, inject } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
   name: 'Quizlet',
   components: {
+    Button,
     Card,
     CircleIcon,
     DownloadIcon,
@@ -92,6 +103,7 @@ export default {
         onClick: () => {}
       }
     ])
+    const $vfm = inject('$vfm')
 
     onMounted(async () => {
       await store.dispatch('Quizlet/getQuizzes')
@@ -116,9 +128,14 @@ export default {
       })
     })
 
+    function openCreateQuizletModal () {
+      $vfm.show({ component: CreateQuizlet })
+    }
+
     return {
       icons,
-      quizzes
+      quizzes,
+      openCreateQuizletModal
     }
   }
 }

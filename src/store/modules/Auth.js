@@ -32,6 +32,9 @@ export default {
           password
         }
       })
+    },
+    async checkToken () {
+      return await Api.get('/checkToken')
     }
   }
 }

@@ -9,9 +9,13 @@
   height: 40px;
   border-radius: $rounded-md;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   transition: .4s ease-in-out;
+
+  &_normal {
+    width: 160px;
+  }
 
   &_primary {
     background: $primary-color;
@@ -19,6 +23,24 @@
 
     &:hover {
       background: $primary-color-hover;
+    }
+  }
+
+  &_success {
+    background: $success-color;
+    color: $text-white;
+
+    &:hover {
+      background: $success-color-hover;
+    }
+  }
+
+  &_error {
+    background: $error-color;
+    color: $text-white;
+
+    &:hover {
+      background: $error-color-hover;
     }
   }
 }
