@@ -108,13 +108,13 @@ export default {
     }
 
     function setRightAnswer (questionIndex, answerIndex, value) {
-      console.log(2)
       questions.value[questionIndex].answers.forEach((item, index) => {
-        if (index === answerIndex) {
-          onUpdateAnswer(questionIndex, answerIndex, value, 'isRightAnswer')
-        }
-
-        onUpdateAnswer(questionIndex, answerIndex, false, 'isRightAnswer')
+        onUpdateAnswer(
+          questionIndex,
+          index,
+          index === answerIndex ? value : false,
+          'isRightAnswer'
+        )
       })
     }
 
