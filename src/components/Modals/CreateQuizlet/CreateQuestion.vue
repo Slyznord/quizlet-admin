@@ -48,29 +48,32 @@
       </Input>
 
       <div class="container column">
+        <h2 class="subtitle subtitle_semibold subtitle_font-base mb-4">Ответы</h2>
         <div
           v-for="(answer, answerIndex) in question.answers"
           :key="answer.value"
-          class="row mb-4"
+          class="column items-start mb-4"
         >
-          <Input
-            classes="input"
-            :model-value="answer.value"
-            @update:model-value="onUpdateAnswer(questionIndex, answerIndex, $event)"
-          >
-            <template #label>
-              <Label
-                value="Ответ"
-                classes="input-group__label"
-              />
-            </template>
-          </Input>
-
-          <Button
-            value="Удалить"
-            class="button button_error button_normal mt-auto ml-2"
-            @on-click="onDeleteAnswer(questionIndex, answerIndex)"
+          <Checkbox
+            classes="mb-3"
+            label="Правильный ответ"
+            :model-value="answer.isRightAnswer"
+            @update:model-value="setRightAnswer(questionIndex, answerIndex, $event)"
           />
+
+          <div class="row w-full">
+            <Input
+              classes="input"
+              :model-value="answer.value"
+              @update:model-value="onUpdateAnswer(questionIndex, answerIndex, $event, 'value')"
+            />
+
+            <Button
+              value="Удалить"
+              class="button button_error button_normal mt-auto ml-2"
+              @on-click="onDeleteAnswer(questionIndex, answerIndex)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -82,6 +85,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import Button from '@/components/UI/Button'
+import Checkbox from '@/components/UI/Checkbox'
 import Input from '@/components/UI/Input'
 import Label from '@/components/UI/Label'
 
@@ -89,6 +93,7 @@ export default {
   name: 'CreateQuestion',
   components: {
     Button,
+    Checkbox,
     Input,
     Label
   },
@@ -98,14 +103,30 @@ export default {
       return JSON.parse(JSON.stringify(store.state.Quizlet.createdQuiz.questions))
     })
 
+    function onUpdateAnswer (questionIndex, answerIndex, value, key) {
+      store.commit('Quizlet/updateAnswer', { questionIndex, answerIndex, value, key })
+    }
+
+    function setRightAnswer (questionIndex, answerIndex, value) {
+      console.log(2)
+      questions.value[questionIndex].answers.forEach((item, index) => {
+        if (index === answerIndex) {
+          onUpdateAnswer(questionIndex, answerIndex, value, 'isRightAnswer')
+        }
+
+        onUpdateAnswer(questionIndex, answerIndex, false, 'isRightAnswer')
+      })
+    }
+
     return {
+      questions,
       onAddAnswer: (questionIndex) => store.commit('Quizlet/addAnswer', questionIndex),
       onAddQuestion: () => store.commit('Quizlet/addQuestion'),
       onDeleteAnswer: (questionIndex, answerIndex) => store.commit('Quizlet/deleteAnswer', { questionIndex, answerIndex }),
       onDeleteQuestion: (questionIndex) => store.commit('Quizlet/deleteQuestion', questionIndex),
-      onUpdateAnswer: (questionIndex, answerIndex, value) => store.commit('Quizlet/updateAnswer', { questionIndex, answerIndex, value }),
+      onUpdateAnswer,
       onUpdateQuestion: (index, value) => store.commit('Quizlet/updateQuestion', { index, value }),
-      questions
+      setRightAnswer
     }
   }
 }

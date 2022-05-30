@@ -45,8 +45,8 @@ export default {
     deleteAnswer (state, { questionIndex, answerIndex }) {
       state.createdQuiz.questions[questionIndex].answers.splice(answerIndex, 1)
     },
-    updateAnswer (state, { questionIndex, answerIndex, value }) {
-      state.createdQuiz.questions[questionIndex].answers[answerIndex].value = value
+    updateAnswer (state, { questionIndex, answerIndex, value, key }) {
+      state.createdQuiz.questions[questionIndex].answers[answerIndex][key] = value
     },
     // Get quizzes
     setQuizzes (state, payload) {
@@ -113,6 +113,11 @@ export default {
       return await Api.post('quizlet/upload', {
         data: file
       }).then(res => res.file)
+    },
+    async createQuiz ({ commit }, quiz) {
+      await Api.post('quizlet/create', {
+        data: quiz
+      })
     }
   }
 }
