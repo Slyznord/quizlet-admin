@@ -100,13 +100,15 @@
         />
       </div>
 
-      <CreateQuestion />
+      <CreateQuestion
+        :elements="quiz.questions"
+      />
     </div>
   </vue-final-modal>
 </template>
 
 <script>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import Button from '@/components/UI/Button'
@@ -131,15 +133,26 @@ export default {
     Input,
     Label
   },
-  setup () {
+  props: {
+    element: {
+      type: Object,
+      default: null
+    },
+    isEditing: {
+      type: Boolean,
+      default: false
+    }
+  },
+  setup (props) {
+    const { element, isEditing } = toRefs(props)
     const store = useStore()
 
     onMounted(() => {
-      store.commit('Quizlet/initCreatedQuiz')
+      store.commit('Quizlet/initCreatedQuiz', JSON.parse(JSON.stringify(element.value)))
     })
 
     const quiz = computed(() => {
-      return JSON.parse(JSON.stringify(store.state.Quizlet.createdQuiz))
+      return store.state.Quizlet.createdQuiz
     })
     const suckerCanvas = ref(null)
     const suckerArea = ref([])
@@ -246,7 +259,13 @@ export default {
 
     async function onSaveQuiz (close) {
       if (isThereAnyEmptyField()) return
-      await store.dispatch('Quizlet/createQuiz', quiz.value)
+
+      if (isEditing) {
+        await store.dispatch('Quizlet/updateQuizCollection', quiz.value)
+      } else {
+        await store.dispatch('Quizlet/createQuiz', quiz.value)
+      }
+
       close()
     }
 

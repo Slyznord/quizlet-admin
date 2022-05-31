@@ -1,5 +1,7 @@
 <template>
-  <h1>Hello</h1>
+  <div class="container row justify-center">
+    <h2 class="headline">В разработке👷‍♂️</h2>
+  </div>
 </template>
 
 <script>

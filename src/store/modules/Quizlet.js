@@ -11,8 +11,8 @@ export default {
   getters: {},
   mutations: {
     // Actions for quiz
-    initCreatedQuiz (state) {
-      state.createdQuiz = {
+    initCreatedQuiz (state, quiz) {
+      state.createdQuiz = quiz ?? {
         introductionText: '',
         duration: '',
         logoURL: '',
@@ -117,6 +117,22 @@ export default {
     async createQuiz ({ commit }, quiz) {
       await Api.post('quizlet/create', {
         data: quiz
+      })
+    },
+    async updateQuizCollection ({ commit }, quiz) {
+      await Api.put('quizlet/update/collection', {
+        data: quiz
+      })
+    },
+    async updateQuizByKey ({ commit }, data) {
+      await Api.put('quizlet/update', { data })
+    },
+    async deleteFromTable ({ commit }, { _id, table }) {
+      await Api.get('quizlet/delete', { _id, table })
+    },
+    async generateReport ({ commit }, quizletID) {
+      return await Api.get('user/generate/html', {
+        quizlet_id: quizletID
       })
     }
   }

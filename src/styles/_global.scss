@@ -26,6 +26,10 @@ body {
   align-items: flex-start;
 }
 
+.justify-center {
+  justify-content: center;
+}
+
 .w-full {
   width: 100%;
 }
@@ -45,3 +49,5 @@ $rules: [
 .mt-auto {
   margin-top: auto;
 }
+
+.downloadFile { display: none; }
