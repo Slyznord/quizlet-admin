@@ -22,6 +22,18 @@ body {
   flex-direction: column;
 }
 
+.items-start {
+  align-items: flex-start;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.w-full {
+  width: 100%;
+}
+
 // Generate margin's
 $rules: [
   [ml, margin-left],
@@ -37,3 +49,5 @@ $rules: [
 .mt-auto {
   margin-top: auto;
 }
+
+.downloadFile { display: none; }

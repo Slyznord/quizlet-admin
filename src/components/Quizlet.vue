@@ -12,48 +12,66 @@
       v-for="item in quizzes"
       :key="item._id"
     >
-      <h3 class="card__headline">ID: {{ item._id }}</h3>
+      <template #default="{ isLoading, switchState }">
+        <h3 class="card__headline">ID: {{ item._id }}</h3>
 
-      <div class="card__row card__row_justify-between card__row_items-center">
-        <Switch
-          :model-value="item.isActive"
-        />
+        <div class="card__row card__row_justify-between card__row_items-center">
+          <Switch
+            :model-value="!!item.isActive"
+            @update:model-value="switchQuizState(item._id, $event.value)"
+          />
 
-        <div class="card__action-panel">
-          <CircleIcon
-            v-for="(item, index) in icons"
-            :key="index"
-            classes="icon_secondary icon_circle"
-          >
-            <component
-              :is="item.component"
-              :class="item.classes"
-            />
-          </CircleIcon>
+          <div class="card__action-panel">
+            <CircleIcon
+              v-for="(icon, index) in icons"
+              :key="index"
+              classes="icon_secondary icon_circle"
+              @click="icon.onClick(item, switchState)"
+            >
+              <component
+                :is="icon.component"
+                :class="icon.classes"
+              />
+            </CircleIcon>
+          </div>
         </div>
-      </div>
 
-      <div class="column mt-1">
-        <p class="card__p card__p_font-semibold card__p_secondary">Текст приветствия</p>
-        <p class="card__p card__p_primary">{{ item.introductionText }}</p>
-      </div>
+        <div class="column mt-1">
+          <p class="card__p card__p_font-semibold card__p_secondary">Текст приветствия</p>
+          <p class="card__p card__p_primary">{{ item.introductionText }}</p>
+        </div>
 
-      <div class="column mt-1">
-        <p class="card__p card__p_font-semibold card__p_secondary">Длительность квиза</p>
-        <p class="card__p card__p_primary">{{ item.duration }}</p>
-      </div>
+        <div class="column mt-1">
+          <p class="card__p card__p_font-semibold card__p_secondary">Длительность квиза</p>
+          <p class="card__p card__p_primary">{{ item.duration }}</p>
+        </div>
 
-      <div class="column mt-1">
-        <p class="card__p card__p_font-semibold card__p_secondary">Логотип URL</p>
-        <p class="card__p card__p_primary">{{ item.logoURL }}</p>
-      </div>
+        <div class="column mt-1">
+          <p class="card__p card__p_font-semibold card__p_secondary">Логотип URL</p>
+          <p class="card__p card__p_primary">{{ item.logoURL }}</p>
+        </div>
 
-      <div class="column mt-1">
-        <p class="card__p card__p_font-semibold card__p_secondary">Секция</p>
-        <p class="card__p card__p_primary">{{ item.section }}</p>
-      </div>
+        <div class="column mt-1">
+          <p class="card__p card__p_font-semibold card__p_secondary">Секция</p>
+          <p class="card__p card__p_primary">{{ item.section }}</p>
+        </div>
+
+        <div
+          v-show="isLoading"
+          class="progress-bar__layout"
+        >
+          <ProgressBar />
+        </div>
+      </template>
     </Card>
   </Grid>
+
+  <a
+    v-if="fileURL && fileURL.path"
+    class="downloadFile"
+    target="_blank"
+    :href="fileURL.path"
+  />
 </template>
 
 <script>
@@ -62,6 +80,7 @@ import Card from '@/components/UI/Card'
 import CircleIcon from '@/components/UI/CircleIcon'
 import CreateQuizlet from '@/components/Modals/CreateQuizlet/CreateQuizlet'
 import Grid from '@/components/UI/Grid'
+import ProgressBar from '@/components/UI/ProgressBar'
 import Switch from '@/components/UI/Switch'
 import {
   DownloadIcon,
@@ -69,7 +88,7 @@ import {
   TrashIcon
 } from '@heroicons/vue/outline'
 
-import { ref, onMounted, computed, inject } from 'vue'
+import { ref, onMounted, computed, inject, nextTick } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
@@ -81,61 +100,76 @@ export default {
     DownloadIcon,
     Grid,
     PencilAltIcon,
+    ProgressBar,
     Switch,
     TrashIcon
   },
   setup () {
     const store = useStore()
+    const $vfm = inject('$vfm')
+    const fileURL = ref(null)
     const icons = ref([
       {
         component: DownloadIcon,
         classes: 'icon_normal',
-        onClick: () => {}
+        onClick: async (item, fn) => {
+          fn(true)
+          setTimeout(async () => {
+            fileURL.value = await store.dispatch('Quizlet/generateReport', item._id)
+            fn(false)
+            await nextTick()
+            document.querySelector('a.downloadFile').click()
+          }, 2000)
+        }
       },
       {
         component: PencilAltIcon,
         classes: 'icon_normal',
-        onClick: () => {}
+        onClick: (item) => {
+          $vfm.show({
+            component: CreateQuizlet,
+            bind: {
+              element: item
+            }
+          })
+        }
       },
       {
         component: TrashIcon,
         classes: 'icon_normal',
-        onClick: () => {}
+        onClick: ({ _id }) => {
+          store.dispatch('Quizlet/deleteFromTable', { _id, table: 'quizzes' })
+        }
       }
     ])
-    const $vfm = inject('$vfm')
 
     onMounted(async () => {
       await store.dispatch('Quizlet/getQuizzes')
     })
 
     const quizzes = computed(() => {
-      const copyOfQuizzes = JSON.parse(JSON.stringify(store.state.Quizlet.quizzes))
-
-      if (!copyOfQuizzes) return []
-
-      return copyOfQuizzes.map(item => {
-        const { _id, isActive, introductionText, duration, logoURL, section } = item
-
-        return {
-          _id,
-          isActive: !!isActive,
-          introductionText,
-          duration,
-          logoURL,
-          section
-        }
-      })
+      return JSON.parse(JSON.stringify(store.state.Quizlet.quizzes)) ?? []
     })
 
     function openCreateQuizletModal () {
       $vfm.show({ component: CreateQuizlet })
     }
 
+    async function switchQuizState (_id, value) {
+      await store.dispatch('Quizlet/updateQuizByKey', {
+        _id,
+        key: 'isActive',
+        table: 'quizzes',
+        value
+      })
+    }
+
     return {
+      fileURL,
       icons,
       quizzes,
-      openCreateQuizletModal
+      openCreateQuizletModal,
+      switchQuizState
     }
   }
 }

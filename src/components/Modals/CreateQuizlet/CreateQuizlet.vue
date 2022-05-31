@@ -12,14 +12,14 @@
       v-if="quiz"
       class="container container_h-full column"
     >
-      <div class="actions-panel actions-panel_sticky-top actions-panel_justify-between actions-panel_mb-2">
+      <div class="actions-panel actions-panel_justify-between actions-panel_mb-2">
         <h2 class="headline">Создание квиза</h2>
 
         <div class="row">
           <Button
             value="Сохранить"
             classes="button button_normal button_success mr-2"
-            @click="() => {}"
+            @click="onSaveQuiz(close)"
           />
 
           <Button
@@ -52,7 +52,7 @@
           'input'
         ]"
         :model-value="quiz.duration"
-        @update:model-value="onUpdateInput($event, 'duration')"
+        @update:model-value="onUpdateTimer($event)"
       >
         <template #label>
           <Label
@@ -100,13 +100,15 @@
         />
       </div>
 
-      <CreateQuestion />
+      <CreateQuestion
+        :elements="quiz.questions"
+      />
     </div>
   </vue-final-modal>
 </template>
 
 <script>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import Button from '@/components/UI/Button'
@@ -131,22 +133,49 @@ export default {
     Input,
     Label
   },
-  setup () {
+  props: {
+    element: {
+      type: Object,
+      default: null
+    },
+    isEditing: {
+      type: Boolean,
+      default: false
+    }
+  },
+  setup (props) {
+    const { element, isEditing } = toRefs(props)
     const store = useStore()
 
     onMounted(() => {
-      store.commit('Quizlet/initCreatedQuiz')
+      store.commit('Quizlet/initCreatedQuiz', JSON.parse(JSON.stringify(element.value)))
     })
 
     const quiz = computed(() => {
-      return JSON.parse(JSON.stringify(store.state.Quizlet.createdQuiz))
+      return store.state.Quizlet.createdQuiz
     })
+    const suckerCanvas = ref(null)
+    const suckerArea = ref([])
 
     function onUpdateInput (value, key) {
       store.commit('Quizlet/updateCreatedQuiz', {
         value,
         key
       })
+    }
+
+    function onUpdateTimer (value) {
+      const formattedTime = formattingDuration(value)
+      onUpdateInput(formattedTime, 'duration')
+    }
+
+    function formattingDuration (time) {
+      let timeStr = time.toString()
+
+      if (timeStr.match(/[a-zа-яё]/i)) timeStr = timeStr.replace(/[a-zа-яё]/gi, '')
+      if (timeStr.length <= 2) timeStr = timeStr.length > 1 ? `${timeStr}:00` : `0${timeStr}:00`
+
+      return timeStr
     }
 
     async function onUploadFile (file, key) {
@@ -168,9 +197,6 @@ export default {
       })
     }
 
-    const suckerCanvas = ref(null)
-    const suckerArea = ref([])
-
     function onChangeColor (color) {
       const { rgba: { r, g, b, a } } = color
       store.commit('Quizlet/updateCreatedQuiz', {
@@ -179,13 +205,79 @@ export default {
       })
     }
 
+    const isThereEmptyBaseFields = () => {
+      const { introductionText, duration, logoURL, section } = quiz.value
+      return !(introductionText && duration && logoURL && section)
+    }
+    const isThereQuestions = () => {
+      return Boolean(quiz.value.questions.length)
+    }
+    const isThereEmptyQuestions = () => {
+      return quiz.value.questions.some(item => !item.question)
+    }
+    const isThereQuestionsWithoutAnswers = () => {
+      return quiz.value.questions.some(item => !item.answers.length)
+    }
+    const isThereQuestionWithoutRightAnswer = () => {
+      return !quiz.value.questions.some(question => question.answers.some(answer => answer.isRightAnswer))
+    }
+    const isThereEmptyAnswer = () => {
+      return quiz.value.questions.some(question => question.answers.some(answer => !answer.value))
+    }
+
+    function isThereAnyEmptyField () {
+      if (isThereEmptyBaseFields()) {
+        alert('Заполнены не все поля (текст приветствия, длительность квиза или секция)')
+        return true
+      }
+
+      if (!isThereQuestions()) {
+        alert('Не добавлены вопросы')
+        return true
+      }
+
+      if (isThereEmptyQuestions()) {
+        alert('Все вопросы должны быть с текстом')
+        return true
+      }
+
+      if (isThereQuestionsWithoutAnswers()) {
+        alert('У некоторых вопросов нету ответов')
+        return true
+      }
+
+      if (isThereEmptyAnswer()) {
+        alert('У некоторых вопросов есть путсые ответы')
+        return true
+      }
+
+      if (isThereQuestionWithoutRightAnswer()) {
+        alert('У некоторых вопросов не выбран правильный ответ')
+        return true
+      }
+    }
+
+    async function onSaveQuiz (close) {
+      if (isThereAnyEmptyField()) return
+
+      if (isEditing) {
+        await store.dispatch('Quizlet/updateQuizCollection', quiz.value)
+      } else {
+        await store.dispatch('Quizlet/createQuiz', quiz.value)
+      }
+
+      close()
+    }
+
     return {
       quiz,
       suckerArea,
       suckerCanvas,
       onChangeColor,
+      onSaveQuiz,
       onUpdateInput,
-      onUploadFile
+      onUploadFile,
+      onUpdateTimer
     }
   }
 }

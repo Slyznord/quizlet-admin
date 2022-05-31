@@ -9,6 +9,8 @@
   border-radius: $rounded-md;
   box-shadow: 0 0 10px rgba(54, 54, 54, 0.25);
   background: #fff;
+  position: relative;
+  overflow: hidden;
 
   &__row {
     display: flex;

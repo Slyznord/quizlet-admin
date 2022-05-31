@@ -11,8 +11,8 @@
     </div>
 
     <div
-      v-for="(question, questionIndex) in questions"
-      :key="question.question"
+      v-for="(item, questionIndex) in questions"
+      :key="questionIndex"
       class="column container container_shadow-md container_rounded-md container_padding-30 mb-4"
     >
       <div class="actions-panel actions-panel_justify-between actions-panel_items-center mb-4">
@@ -36,7 +36,7 @@
       <Input
         class="mb-4"
         classes="input"
-        :model-value="question.question"
+        :model-value="item.question"
         @update:model-value="onUpdateQuestion(questionIndex, $event)"
       >
         <template #label>
@@ -48,29 +48,32 @@
       </Input>
 
       <div class="container column">
+        <h2 class="subtitle subtitle_semibold subtitle_font-base mb-4">Ответы</h2>
         <div
-          v-for="(answer, answerIndex) in question.answers"
+          v-for="(answer, answerIndex) in item.answers"
           :key="answer.value"
-          class="row mb-4"
+          class="column items-start mb-4"
         >
-          <Input
-            classes="input"
-            :model-value="answer.value"
-            @update:model-value="onUpdateAnswer(questionIndex, answerIndex, $event)"
-          >
-            <template #label>
-              <Label
-                value="Ответ"
-                classes="input-group__label"
-              />
-            </template>
-          </Input>
-
-          <Button
-            value="Удалить"
-            class="button button_error button_normal mt-auto ml-2"
-            @on-click="onDeleteAnswer(questionIndex, answerIndex)"
+          <Checkbox
+            classes="mb-3"
+            label="Правильный ответ"
+            :model-value="!!answer.isRightAnswer"
+            @update:model-value="setRightAnswer(questionIndex, answerIndex, $event)"
           />
+
+          <div class="row w-full">
+            <Input
+              classes="input"
+              :model-value="answer.value"
+              @update:model-value="onUpdateAnswer(questionIndex, answerIndex, $event, 'value')"
+            />
+
+            <Button
+              value="Удалить"
+              class="button button_error button_normal mt-auto ml-2"
+              @on-click="onDeleteAnswer(questionIndex, answerIndex)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -78,10 +81,11 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, toRefs, reactive } from 'vue'
 import { useStore } from 'vuex'
 
 import Button from '@/components/UI/Button'
+import Checkbox from '@/components/UI/Checkbox'
 import Input from '@/components/UI/Input'
 import Label from '@/components/UI/Label'
 
@@ -89,23 +93,47 @@ export default {
   name: 'CreateQuestion',
   components: {
     Button,
+    Checkbox,
     Input,
     Label
   },
-  setup () {
+  props: {
+    elements: {
+      type: Array,
+      default: null
+    }
+  },
+  setup (props) {
     const store = useStore()
+    const { elements } = toRefs(props)
     const questions = computed(() => {
-      return JSON.parse(JSON.stringify(store.state.Quizlet.createdQuiz.questions))
+      return reactive(elements.value) ?? store.state.Quizlet.createdQuiz.questions
     })
 
+    function onUpdateAnswer (questionIndex, answerIndex, value, key) {
+      store.commit('Quizlet/updateAnswer', { questionIndex, answerIndex, value, key })
+    }
+
+    function setRightAnswer (questionIndex, answerIndex, value) {
+      questions.value[questionIndex].answers.forEach((item, index) => {
+        onUpdateAnswer(
+          questionIndex,
+          index,
+          index === answerIndex ? value : false,
+          'isRightAnswer'
+        )
+      })
+    }
+
     return {
+      questions,
       onAddAnswer: (questionIndex) => store.commit('Quizlet/addAnswer', questionIndex),
       onAddQuestion: () => store.commit('Quizlet/addQuestion'),
       onDeleteAnswer: (questionIndex, answerIndex) => store.commit('Quizlet/deleteAnswer', { questionIndex, answerIndex }),
       onDeleteQuestion: (questionIndex) => store.commit('Quizlet/deleteQuestion', questionIndex),
-      onUpdateAnswer: (questionIndex, answerIndex, value) => store.commit('Quizlet/updateAnswer', { questionIndex, answerIndex, value }),
+      onUpdateAnswer,
       onUpdateQuestion: (index, value) => store.commit('Quizlet/updateQuestion', { index, value }),
-      questions
+      setRightAnswer
     }
   }
 }

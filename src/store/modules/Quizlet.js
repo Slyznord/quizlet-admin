@@ -11,8 +11,8 @@ export default {
   getters: {},
   mutations: {
     // Actions for quiz
-    initCreatedQuiz (state) {
-      state.createdQuiz = {
+    initCreatedQuiz (state, quiz) {
+      state.createdQuiz = quiz ?? {
         introductionText: '',
         duration: '',
         logoURL: '',
@@ -45,8 +45,8 @@ export default {
     deleteAnswer (state, { questionIndex, answerIndex }) {
       state.createdQuiz.questions[questionIndex].answers.splice(answerIndex, 1)
     },
-    updateAnswer (state, { questionIndex, answerIndex, value }) {
-      state.createdQuiz.questions[questionIndex].answers[answerIndex].value = value
+    updateAnswer (state, { questionIndex, answerIndex, value, key }) {
+      state.createdQuiz.questions[questionIndex].answers[answerIndex][key] = value
     },
     // Get quizzes
     setQuizzes (state, payload) {
@@ -113,6 +113,27 @@ export default {
       return await Api.post('quizlet/upload', {
         data: file
       }).then(res => res.file)
+    },
+    async createQuiz ({ commit }, quiz) {
+      await Api.post('quizlet/create', {
+        data: quiz
+      })
+    },
+    async updateQuizCollection ({ commit }, quiz) {
+      await Api.put('quizlet/update/collection', {
+        data: quiz
+      })
+    },
+    async updateQuizByKey ({ commit }, data) {
+      await Api.put('quizlet/update', { data })
+    },
+    async deleteFromTable ({ commit }, { _id, table }) {
+      await Api.get('quizlet/delete', { _id, table })
+    },
+    async generateReport ({ commit }, quizletID) {
+      return await Api.get('user/generate/html', {
+        quizlet_id: quizletID
+      })
     }
   }
 }
