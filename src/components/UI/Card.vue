@@ -5,7 +5,7 @@
   ]">
     <slot
       :isLoading="isLoading"
-      :switchState="switchState"
+      :switchLoaderState="switchLoaderState"
     />
   </div>
 </template>
@@ -23,13 +23,13 @@ export default {
   },
   setup () {
     const isLoading = ref(false)
-    const switchState = (value) => {
+    const switchLoaderState = (value) => {
       isLoading.value = value
     }
 
     return {
       isLoading,
-      switchState
+      switchLoaderState
     }
   }
 }

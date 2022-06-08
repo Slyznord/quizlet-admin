@@ -12,9 +12,22 @@
   font-weight: 400;
   cursor: pointer;
   transition: .4s ease-in-out;
+  padding: 0 1rem;
 
   &_normal {
-    width: 160px;
+    width: 180px;
+
+    @media (max-width: 768px) {
+      width: 120px;
+    }
+  }
+
+  &_big {
+    width: 210px;
+  }
+
+  &_justify-start {
+    justify-content: flex-start;
   }
 
   &_primary {
@@ -23,6 +36,17 @@
 
     &:hover {
       background: $primary-color-hover;
+    }
+  }
+
+  &_outline {
+    background: #fff;
+    border: thin solid $primary-color;
+    color: $primary-color;
+
+    &:hover {
+      background: $primary-color;
+      color: #fff;
     }
   }
 

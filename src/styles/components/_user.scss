@@ -8,6 +8,11 @@
   width: 100%;
   max-width: 140px;
 
+  @media (max-width: 680px) {
+    order: -1;
+    margin-left: auto;
+  }
+
   &__group {
     display: flex;
     flex-direction: row;
@@ -34,11 +39,9 @@
   }
 
   &__icon {
-    width: 21px;
+    width: 24px;
+    height: 24px;
     color: $text-primary;
-  }
-
-  &__p, &__icon {
     cursor: pointer;
   }
 }

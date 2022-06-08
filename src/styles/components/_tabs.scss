@@ -5,12 +5,26 @@
     background: #fff;
     border-radius: $rounded-md;
     padding: 15px 30px;
+
+    @media (max-width: 768px) {
+      padding: 15px;
+    }
   }
 
   &__row {
     display: flex;
     flex-direction: row;
     width: 100%;
+
+    &_overflow-y-scroll {
+      overflow-y: auto;
+    }
+
+    @media (max-width: 768px) {
+      flex-wrap: wrap;
+      gap: 1rem;
+      width: 100%;
+    }
   }
 
   &__container {

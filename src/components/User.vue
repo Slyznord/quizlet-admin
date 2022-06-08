@@ -14,13 +14,40 @@
 
     <div class="user__group">
       <p class="user__p">{{ username }}</p>
-      <ChevronDownIcon class="user__icon" />
+
+      <Settings
+        :icon="ChevronDownIcon"
+        iconClasses="user__icon"
+      >
+        <template #button="{ switchSettingsState }">
+          <Button
+            v-for="(item, index) in settings"
+            :key="index"
+            :value="item.label"
+            :classes="item.buttonClasses"
+            @on-click="item.onClick(switchSettingsState)"
+          >
+            <template #icon>
+              <component
+                :is="item.icon"
+                :class="item.iconClasses"
+              />
+            </template>
+          </Button>
+        </template>
+      </Settings>
     </div>
   </div>
 </template>
 
 <script>
-import { ChevronDownIcon } from '@heroicons/vue/outline'
+import { ref } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+
+import Button from '@/components/UI/Button'
+import { ChevronDownIcon, LogoutIcon } from '@heroicons/vue/outline'
+import Settings from '@/components/Settings'
 
 // TODO: Реализовать хранение логина пользователя и отображения его данных в этом компоненте
 export default {
@@ -36,7 +63,33 @@ export default {
     }
   },
   components: {
-    ChevronDownIcon
+    Button,
+    Settings
+  },
+  setup () {
+    const router = useRouter()
+    const store = useStore()
+    const settings = ref([
+      {
+        icon: LogoutIcon,
+        label: 'Выйти',
+        buttonClasses: 'button button_normal button_justify-start button_error',
+        iconClasses: 'icon_normal mr-2',
+        onClick: async (switchSettingsState) => {
+          store.commit('Auth/setToken', {
+            accessToken: null,
+            refreshToken: null
+          })
+          switchSettingsState()
+          await router.push('/auth')
+        }
+      }
+    ])
+
+    return {
+      ChevronDownIcon,
+      settings
+    }
   }
 }
 </script>

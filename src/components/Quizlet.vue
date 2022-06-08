@@ -12,28 +12,39 @@
       v-for="item in quizzes"
       :key="item._id"
     >
-      <template #default="{ isLoading, switchState }">
-        <h3 class="card__headline">ID: {{ item._id }}</h3>
-
+      <template #default="{ isLoading, switchLoaderState }">
         <div class="card__row card__row_justify-between card__row_items-center">
-          <Switch
-            :model-value="!!item.isActive"
-            @update:model-value="switchQuizState(item._id, $event.value)"
-          />
+          <div class="card__row card__row_items-center">
+            <h3 class="card__headline mr-3">ID: {{ item._id }}</h3>
 
-          <div class="card__action-panel">
-            <CircleIcon
-              v-for="(icon, index) in icons"
-              :key="index"
-              classes="icon_secondary icon_circle"
-              @click="icon.onClick(item, switchState)"
-            >
-              <component
-                :is="icon.component"
-                :class="icon.classes"
-              />
-            </CircleIcon>
+            <Switch
+              :model-value="!!item.isActive"
+              @update:model-value="switchQuizState(item._id, $event.value)"
+            />
           </div>
+
+          <Settings
+            :elements="settings"
+            :icon="DotsVerticalIcon"
+            iconClasses="settings__icon"
+          >
+            <template #button="{ switchSettingsState }">
+              <Button
+                v-for="(button, index) in settings"
+                :key="index"
+                :value="button.label"
+                :classes="button.buttonClasses"
+                @on-click="button.onClick(item, switchLoaderState, switchSettingsState)"
+              >
+                <template #icon>
+                  <component
+                    :is="button.icon"
+                    :class="button.iconClasses"
+                  />
+                </template>
+              </Button>
+            </template>
+          </Settings>
         </div>
 
         <div class="column mt-1">
@@ -77,12 +88,13 @@
 <script>
 import Button from '@/components/UI/Button'
 import Card from '@/components/UI/Card'
-import CircleIcon from '@/components/UI/CircleIcon'
 import CreateQuizlet from '@/components/Modals/CreateQuizlet/CreateQuizlet'
 import Grid from '@/components/UI/Grid'
 import ProgressBar from '@/components/UI/ProgressBar'
+import Settings from '@/components/Settings'
 import Switch from '@/components/UI/Switch'
 import {
+  DotsVerticalIcon,
   DownloadIcon,
   PencilAltIcon,
   TrashIcon
@@ -96,49 +108,55 @@ export default {
   components: {
     Button,
     Card,
-    CircleIcon,
-    DownloadIcon,
     Grid,
-    PencilAltIcon,
     ProgressBar,
-    Switch,
-    TrashIcon
+    Settings,
+    Switch
   },
   setup () {
     const store = useStore()
     const $vfm = inject('$vfm')
     const fileURL = ref(null)
-    const icons = ref([
+    const settings = ref([
       {
-        component: DownloadIcon,
-        classes: 'icon_normal',
-        onClick: async (item, fn) => {
-          fn(true)
+        icon: DownloadIcon,
+        label: 'Выгрузить отчет',
+        buttonClasses: 'button button_big button_justify-start button_outline mb-2',
+        iconClasses: 'icon_normal mr-2',
+        onClick: async (item, switchLoaderState, switchSettings) => {
+          switchLoaderState(true)
           setTimeout(async () => {
             fileURL.value = await store.dispatch('Quizlet/generateReport', item._id)
-            fn(false)
+            switchLoaderState(false)
             await nextTick()
             document.querySelector('a.downloadFile').click()
+            switchSettings()
           }, 2000)
         }
       },
       {
-        component: PencilAltIcon,
-        classes: 'icon_normal',
-        onClick: (item) => {
+        icon: PencilAltIcon,
+        label: 'Редактировать',
+        buttonClasses: 'button button_big button_justify-start button_outline mb-2',
+        iconClasses: 'icon_normal mr-2',
+        onClick: (item, switchLoaderState, switchSettingsState) => {
           $vfm.show({
             component: CreateQuizlet,
             bind: {
               element: item
             }
           })
+          switchSettingsState()
         }
       },
       {
-        component: TrashIcon,
-        classes: 'icon_normal',
-        onClick: ({ _id }) => {
+        icon: TrashIcon,
+        label: 'Удалить',
+        buttonClasses: 'button button_big button_justify-start button_outline',
+        iconClasses: 'icon_normal mr-2',
+        onClick: ({ _id }, switchLoaderState, switchSettingsState) => {
           store.dispatch('Quizlet/deleteFromTable', { _id, table: 'quizzes' })
+          switchSettingsState()
         }
       }
     ])
@@ -165,8 +183,9 @@ export default {
     }
 
     return {
+      DotsVerticalIcon,
       fileURL,
-      icons,
+      settings,
       quizzes,
       openCreateQuizletModal,
       switchQuizState

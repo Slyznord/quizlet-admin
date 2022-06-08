@@ -4,6 +4,14 @@
 
   &_col-4 {
     grid-template-columns: repeat(4, 25%);
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 48%);
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 100%;
+    }
   }
 
   &_gap-1 {

@@ -3,6 +3,7 @@
     :class="classes"
     @click="$emit('onClick')"
   >
+    <slot name="icon" />
     {{ value }}
   </div>
 </template>
