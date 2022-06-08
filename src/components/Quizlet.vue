@@ -170,7 +170,14 @@ export default {
     })
 
     function openCreateQuizletModal () {
-      $vfm.show({ component: CreateQuizlet })
+      const quiz = JSON.parse(localStorage.getItem('quizData'))
+
+      $vfm.show({
+        component: CreateQuizlet,
+        bind: {
+          element: quiz
+        }
+      })
     }
 
     async function switchQuizState (_id, value) {
