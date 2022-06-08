@@ -1,7 +1,7 @@
 <template>
   <div class="container column">
     <Tabs
-      :classes="['tabs__row']"
+      :classes="['tabs__row tabs__row_overflow-y-scroll']"
       @update-tab="onUpdateTab($event)"
     >
       <template #tabs="{ callback }">
@@ -13,6 +13,7 @@
             :active-class="['tabs__item_active']"
             :callback="callback"
           />
+
           <div
             class="tabs__selected"
             :style="computedStyles"

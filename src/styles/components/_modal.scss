@@ -21,6 +21,10 @@
     position: relative;
     overflow-y: auto;
 
+    @media (max-width: 768px) {
+      padding: 15px;
+    }
+
     &_medium {
       max-width: 780px;
     }
