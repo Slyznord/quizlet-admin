@@ -25,7 +25,7 @@
           <Button
             value="Отменить"
             classes="button button_normal button_error"
-            @click="close"
+            @click="onCloseHandler(close)"
           />
         </div>
       </div>
@@ -108,8 +108,9 @@
 </template>
 
 <script>
-import { computed, onMounted, ref, toRefs } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
+import quizCaching from '@/utils/quizCaching'
 
 import Button from '@/components/UI/Button'
 import { ColorPicker } from 'vue-color-kit'
@@ -257,6 +258,18 @@ export default {
       }
     }
 
+    watch(quiz, (value) => {
+      quizCaching(value)
+    },
+    {
+      deep: true
+    })
+
+    function onCloseHandler (close) {
+      quizCaching(null)
+      close()
+    }
+
     async function onSaveQuiz (close) {
       if (isThereAnyEmptyField()) return
 
@@ -266,6 +279,7 @@ export default {
         await store.dispatch('Quizlet/createQuiz', quiz.value)
       }
 
+      quizCaching(null)
       close()
     }
 
@@ -274,6 +288,7 @@ export default {
       suckerArea,
       suckerCanvas,
       onChangeColor,
+      onCloseHandler,
       onSaveQuiz,
       onUpdateInput,
       onUploadFile,
