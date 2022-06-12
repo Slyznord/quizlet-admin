@@ -9,7 +9,3 @@ export default {
   name: 'Translation'
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -8,7 +8,6 @@ export default {
     createdQuiz: null,
     attemptToReconnect: 0
   },
-  getters: {},
   mutations: {
     // Actions for quiz
     initCreatedQuiz (state, quiz) {
