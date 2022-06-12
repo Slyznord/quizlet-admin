@@ -1,11 +1,8 @@
-import Auth from '@/views/Auth'
-import Home from '@/views/Home'
-
 export default [
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: () => import('@/views/Home'),
     meta: {
       isProtected: true
     }
@@ -13,6 +10,6 @@ export default [
   {
     path: '/auth',
     name: 'Auth',
-    component: Auth
+    component: () => import('@/views/Auth')
   }
 ]
