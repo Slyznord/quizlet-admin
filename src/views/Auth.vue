@@ -1,6 +1,5 @@
 <template>
   <div class="auth">
-    TEEEEEEEEEEEEEEEEEST
     <Login />
   </div>
 </template>
