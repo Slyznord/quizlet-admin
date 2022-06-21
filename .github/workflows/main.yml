@@ -11,9 +11,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # Делаем checkout текущей ветки
       - uses: actions/checkout@v2
-      # Устанавливаем Node.JS для сборки приложения
       - uses: actions/setup-node@v1
         with:
           node-version: '14'
@@ -27,7 +25,7 @@ jobs:
           host: ${{ secrets.DEPLOY_SERVER_HOST }}
           port: ${{ secrets.DEPLOY_SERVER_PORT }}
           username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
-          key: ${{ secrets.DEPLOY_SERVER_KEY }}
+          password: ${{ secrets.DEPLOY_SERVER_PASSWORD }}
           source: ${{ env.BUILD_SCRIPT_OUTPUT }}
           target: ${{ env.DEPLOY_PATH }}/${{ env.BRANCH_NAME }}
           strip_components: 1
